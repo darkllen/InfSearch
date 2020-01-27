@@ -1,26 +1,11 @@
-/* #upload-container {
-     display: flex;
-     justify-content: center;
-     align-items: center;
-     flex-direction: column;
-     height: 400px;
-     outline: 2px dashed #5d5d5d;
-     outline-offset: -12px;
-     background-color: #e0f2f7;
-     font-family: 'Segoe UI';
-     color: #1f3c44;
-} */
-
 #upload-container img {
      width: 40%;
      margin-bottom: 20px;
      user-select: none;
 }
-
 #upload-container label {
      font-weight: bold;
 }
-
 #upload-container label:hover {
      cursor: pointer;
      text-decoration: underline;
@@ -29,7 +14,6 @@
      position: relative;
      z-index: 10;
 }
-
 #upload-container input[type=file] {
      width: 0.1px;
      height: 0.1px;
@@ -37,7 +21,6 @@
      position: absolute;
      z-index: -10;
 }
-
 #upload-container input[type=file]:focus + label {     
      outline: 1px solid #0078d7;
      outline: -webkit-focus-ring-color auto 5px;
@@ -46,18 +29,10 @@
      outline: 1px solid #0078d7;
      outline: -webkit-focus-ring-color auto 5px;
 }
-
 #upload-container.dragover {
      background-color: #fafafa;
      outline-offset: -17px;
 }
-
-
-
-
-
-
-
 #dropZone {    
     color: #555;
     font-size: 18px;
@@ -73,17 +48,14 @@
     -moz-border-radius: 5px;
     border-radius: 5px;
 }
-
 #dropZone.hover {
     background: #ddd;
     border-color: #aaa;
 }
-
 #dropZone.error {
     background: #faa;
     border-color: #f00;
 }
-
 #dropZone.drop {
     background: #afa;
     border-color: #0f0;

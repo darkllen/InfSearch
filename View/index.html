@@ -7,78 +7,177 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 </head>
 <body>
+  <!-- main container -->
 	<div class="container-fluid">
       <div class="row">
+        <!-- ------------------------------------------------------------------------------------------------------ -->
+        <!-- column for comands -->
         <div class="col-sm border-right">
-    	     <div class="row border-bottom border-danger"><p class="w-100 text-center">commands</p></div>
-    	     <div  class="row">
-            <!-- Button trigger modal -->
-                <button id="addBook" type="button" class="btn btn-secondary w-100" data-toggle="modal" data-target="#modalBookChose">
-                  add Book
-                </button>
-
-                      <!-- Modal -->
-                      <div class="modal fade" id="modalBookChose" tabindex="-1" role="dialog" aria-labelledby="modalBookChoseTitle" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered" role="document">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h5 class="modal-title" id="modalBookChoseLongTitle">Drag your book</h5>
-                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                              </button>
-                            </div>
-                            <div class="modal-body">
-<!--      <form id="upload-container" method="POST" action="http://193.111.0.203/InfSearch/Controller/save.php" enctype="multipart/form-data">
-     <img id="upload-image" src="upload.svg">
-     <div>
-          <input id="file-input" type="file" name="path" multiple>
-          <label for="file-input">Выберите файл</label>
-          <span>или перетащите его сюда</span>
-     </div>
-</form> -->
-<form id="upload-container" method="POST" action="http://193.111.0.203/InfSearch/Controller/save.php" enctype="multipart/form-data">
-              <div class="d-flex justify-content-center">
-          <input id="file-input" type="file" name="path" multiple>
-          <label for="file-input">choose fb2 file</label> 
-          <span>&nbspor drag it</span>
-     </div>
-      <div id="dropZone">
-        
-      </div>
- 
-    </form>  
-
-                            </div>
-                    
-                          </div>
-                        </div>
-                      </div>
-</div>
+            <!-- commands title -->
+    	      <div class="row border-bottom border-danger"><p class="w-100 text-center">commands</p></div>
+            <!-- button to add new book -->
+    	      <div  class="row">
+              <button id="addBook" type="button" class="btn btn-secondary w-100 border-bottom" data-toggle="modal" data-target="#modalBookChose">
+                add Book
+              </button>
+            </div>
+            <div  class="row ">
+            <!-- Button to show dictionary -->
+                <button id="showWords" type="button" class="btn btn-secondary w-100 border-bottom">
+                  show words
+                </button>       
+            </div>
+            <div  class="row ">
+            <!-- Button to show invertIndex -->
+                <button id="showInvertIndex" type="button" class="btn btn-secondary w-100 border-bottom">
+                  show invert index
+                </button>       
+            </div>
+            <div  class="row ">
+            <!-- Button to show matrix -->
+                <button id="showMatrix" type="button" class="btn btn-secondary w-100 border-bottom">
+                  show matrix
+                </button>       
+            </div>
+            <div  class="row ">
+            <!-- Button to show matrix -->
+                <button id="boolSearch" type="button" class="btn btn-secondary w-100 border-bottom">
+                  search
+                </button>       
+            </div>
+            <div  class="row ">
+            <!-- Button to show matrix -->
+                <button id="showJustMatrix" type="button" class="btn btn-secondary w-100 border-bottom">
+                  show just matrix
+                </button>       
+            </div>
+        <!-- end command column  -->
         </div>
-        <div class="col-sm-6">iiiiiiii</div>
-        <div class="col-sm border-left">
+        <!-- ------------------------------------------------------------------------------------------------------ -->
+        <!-- column for main information -->
+        <div id="infoZone" class="overflow-auto col-sm-6 ">
+        </div>
+        <!-- ------------------------------------------------------------------------------------------------------ -->
+        <!-- column for dictionary info -->
+        <div id="infoColumn" class="col-sm border-left">
+            <!-- row for title info -->
             <div class="row border-bottom border-danger">
                 <div class="container-fluid"> 
                     <div class="row">  
-                        <div class="col-sm-9"> <p class="w-100 text-center">name</p></div>
-                        <div class="col-sm-3"> <div class="dropdown">
+                        <!-- dictionary name -->
+                        <div class="col-sm-10"> 
+                          <p  id="dictName" class="w-100 text-center">name</p>
+                        </div>
+
+                        <div class="col-sm-2"> 
+                          <div class="dropdown">
+                            <!-- dictionary menu button -->
                             <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">i</button>
+                            <!-- dropdown menu -->
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu">
-                                <button id="change" class="dropdown-item" type="button">change</button>
+                                <!-- change edit new -->
+                                <button id="buttonChange" type="button" class="dropdown-item" type="button" data-toggle="modal" data-target="#changeDictionary">change</button>
                                 <button class="dropdown-item" type="button">edit</button>
                                 <div class="dropdown-divider"></div>
-                                <button class="dropdown-item" type="button">new</button>
+                                <button id="buttonChoseBooks" type="button" class="dropdown-item" type="button" data-toggle="modal" data-target="#createDictionary">new</button>
                             </div>
-                        </div> </div>
+                          </div> 
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="row border-bottom border-primary"> info</div>
+            <!-- dictionary information rows -->
+            <div id="infoBooksNum" class="row border-bottom border-primary"> Books in collection: </div>
+            <div id="infoSize" class="row border-bottom border-primary"> Collection size: </div>
+            <div id="infoAllWords" class="row border-bottom border-primary"> All words: </div>
+            <div id="infoUniqueWords" class="row border-bottom border-primary"> Unique words: </div>
+            <div id="infoTime" class="row border-bottom border-primary"> Time to create: </div>
+            <!-- divider beetween books name -->
+            <div class="row border-bottom border-secondary"><br></div>
         </div>
       </div>
+  <!-- main container end -->
+  </div>
+  <!-- ------------------------------------------------------------------------------------------------------ -->
+  <!-- Modal window to  upload books!-->
+  <div class="modal fade" id="modalBookChose" tabindex="-1" role="dialog" aria-labelledby="modalBookChoseTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <!-- header -->
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalBookChoseLongTitle">Drag your book</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <!-- body -->
+        <div class="modal-body">
+          <form id="upload-container" method="POST" action="http://193.111.0.203/InfSearch/Controller/save.php" enctype="multipart/form-data">
+            <div class="d-flex justify-content-center">
+              <!-- inputs for files -->
+              <input id="file-input" type="file" name="path" multiple>
+              <label for="file-input">choose fb2 file</label> 
+              <span>&nbspor drag it</span>
+            </div>
+            <!-- place to drag books -->
+            <div id="dropZone">
+            </div>
+          </form>  
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ------------------------------------------------------------------------------------------------------ -->
+  <!-- Modal window to create dictionary from books -->
+  <div class="modal fade" id="createDictionary" tabindex="-1" role="dialog" aria-labelledby="createDictionaryTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <!-- header -->
+        <div class="modal-header">
+          <h5 class="modal-title" id="createDictionaryLongTitle">choose books</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <!-- output all books to chose -->
+        <div id="booksToChose" class="modal-body">
+          <div id="booksList" class="container-fluid"> 
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button id="buttonCreateDictionary" type="button" class="btn btn-primary">Create</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ------------------------------------------------------------------------------------------------------ -->
+  <!-- Modal window to change dictionary -->
+  <div class="modal fade "  id="changeDictionary" tabindex="-1" role="dialog" aria-labelledby="changeDictionaryTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <!-- header -->
+        <div class="modal-header">
+          <h5 class="modal-title" id="changeDictionaryLongTitle">choose dictionary</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <!-- output all dictionaries -->
+        <div id="dictionariesToChose" class="modal-body ">
+          <div id="dictionariesList" class="container-fluid overflow-auto"> 
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="closeChange" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button id="buttonCreateDictionary" type="button" class="btn btn-primary">Choose</button>
+        </div>
+      </div>
+    </div>
   </div>
 </body>
 
+<!-- jquery and js scripts -->
 <script src="https://code.jquery.com/jquery-3.4.1.js"  crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
