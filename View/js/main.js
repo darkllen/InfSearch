@@ -28,10 +28,10 @@ $("#buttonChange").click(function () {
 			$("#dictionariesList").children().remove();
 			//create title
          	var str1 = '<button type="button" class="btn w-100 btn-lg" disabled><div class="row border-bottom border-primary">';
-            var str3 ='        <div class="col-sm-1 border-right"> <p class="w-100 text-center">id</p></div>';
-            var str4 ='        <div class="col-sm-5 border-right"> <p class="w-100 text-center">name</p></div>';
-            var str5 ='        <div class="col-sm-1 border-right"> <p class="w-100 text-center">N</p></div>';
-            var str6 ='        <div class="col-sm-3"><p class="w-100 text-center">size</p></div>';
+            var str3 ='        <div class="col-sm-2 border-right"> <p class="w-100 text-center">id</p></div>';
+            var str4 ='        <div class="col-sm-4 border-right"> <p class="w-100 text-center">name</p></div>';
+            var str5 ='        <div class="col-sm-2 border-right"> <p class="w-100 text-center">N</p></div>';
+            var str6 ='        <div class="col-sm-2"><p class="w-100 text-center">size</p></div>';
             var str7 ='    </div></button>';
        		var names = [];
        		var sizes = [];
@@ -52,10 +52,10 @@ $("#buttonChange").click(function () {
 				ids[id] = data[i]['ids'];
 				//create all dictionaries
 			  	str1 = '<button type="button" id="choose_book_'+id+'"  class="btn w-100"><div class="row  border-bottom border-primary">';
-              	str3 ='        <div class="col-sm-1 border-right"> <p class="w-100 text-center">'+id+'</p></div>';
-              	str4 ='        <div class="col-sm-5 border-right"> <p class="w-100 text-center">'+names[id]+'</p></div>';
-              	str5 ='        <div class="col-sm-1 border-right"> <p class="w-100 text-center">'+books[id]+'</p></div>';
-              	str6 ='        <div class="col-sm-3"><p class="w-100 text-center">'+sizes[id].toFixed(1)+'</p></div>';
+              	str3 ='        <div class="col-sm-2 border-right"> <p class="w-100 text-center">'+id+'</p></div>';
+              	str4 ='        <div class="col-sm-4 border-right"> <p class="w-100 text-center">'+names[id]+'</p></div>';
+              	str5 ='        <div class="col-sm-2 border-right"> <p class="w-100 text-center">'+books[id]+'</p></div>';
+              	str6 ='        <div class="col-sm-2"><p class="w-100 text-center">'+sizes[id].toFixed(1)+' kb</p></div>';
               	str7 ='    </div></button>';
 			  	$("#dictionariesList").append(str1+str3+str4+str5+str6+str7);
 			  	//event to change dictionary
@@ -112,7 +112,82 @@ $("#showWords").click(function () {
 		}
 	});
 })
+//show 2-wordIndex
+$("#showWords2Index").click(function () {
+	namet = $("#dictName").text();
+	var res = {
+		name: namet
+	};
+	$.ajax({
+		type:"GET",
+		url: "http://193.111.0.203:5000/get2WordIndex",
+		data: res,
+		success:function (data) {
+			$("#infoZone").height(document.documentElement.clientHeight);
+			$("#infoZone").html(data.replace(/, \"/g, "<br> \""));
+		},
+		error:function (argument) {
+			console.log(argument);
+		}
+	});
+})
 
+//show permutationIndex
+$("#permutationIndex").click(function () {
+	namet = $("#dictName").text();
+	var res = {
+		name: namet
+	};
+	$.ajax({
+		type:"GET",
+		url: "http://193.111.0.203:5000/getPermutationIndex",
+		data: res,
+		success:function (data) {
+			$("#infoZone").height(document.documentElement.clientHeight);
+			$("#infoZone").html(data.replace(/], \"/g, "]<br> \""));
+		},
+		error:function (argument) {
+			console.log(argument);
+		}
+	});
+})
+//show gramIndex
+$("#gramIndex").click(function () {
+	namet = $("#dictName").text();
+	var res = {
+		name: namet
+	};
+	$.ajax({
+		type:"GET",
+		url: "http://193.111.0.203:5000/getGramIndex",
+		data: res,
+		success:function (data) {
+			$("#infoZone").height(document.documentElement.clientHeight);
+			$("#infoZone").html(data.replace(/], \"/g, "]<br><br> \"").replace(/: \[/g, ":<br>\["));
+		},
+		error:function (argument) {
+			console.log(argument);
+		}
+	});
+})
+$("#coordIndex").click(function () {
+	namet = $("#dictName").text();
+	var res = {
+		name: namet
+	};
+	$.ajax({
+		type:"GET",
+		url: "http://193.111.0.203:5000/getCoordIndex",
+		data: res,
+		success:function (data) {
+			$("#infoZone").height(document.documentElement.clientHeight);
+			$("#infoZone").html(data.replace(/}, \"/g, "}<br><br> \"").replace(/, \"/g, "<br> \"").replace(/: {/g, ":<br>{ \""));
+		},
+		error:function (argument) {
+			console.log(argument);
+		}
+	});
+})
 //show invert index
 $("#showInvertIndex").click(function () {
 	namet = $("#dictName").text();
@@ -200,7 +275,7 @@ $(document).on('click', '#buttonSearch', function (e) {
 			console.log(data[0]);
 			$(".searchRes").detach();
 			$("#infoZone").append('<div class = "row w-100 searchRes">Time: '+ data['time']+ ' s</div>');
-			$("#infoZone").append('<div class = "row w-100 searchRes">Search Result:<br> '+ data['names'].join("<br>")+ '</div>');
+			$("#infoZone").append('<div class = "row w-100 searchRes">Search Result:<br> '+ data['names'].join("<br>").replace(/,/g, "<br>")+ '</div>');
 		},
 		error:function (argument) {
 			console.log(argument);
