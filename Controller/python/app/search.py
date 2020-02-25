@@ -55,7 +55,8 @@ def transformIndexToMatrix(ind, num):
   i = 0
   for i in range(num):
     if count>=len(ind):
-      res+="0"
+      while len(res) != num:
+        res += "0"
       break
     if i==ind[count]:
       count+=1

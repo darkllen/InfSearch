@@ -49,4 +49,19 @@ def getBooksList():
 def getDictionariesList():
     return connection.selectAllFrom("dictionary")
 
+@app.route('/getCreatedDicts', methods=['GET'])
+def getCreatedDicts():
+    name = request.args['name']
+    con = connection.getConnection()
+    with con:
+        cur = con.cursor()
+        cur.execute("SELECT `dict`, `invertIndex`, `coordIndex`, `2WordsIndex`, `gramIndex`, `permutationIndex`, `trieIndex`, `invertIndexByParts` FROM `dictionary` WHERE `name`='"+name+"'")
+        rows = cur.fetchall()
+        count = 1
+        res = {}
+        for row in rows:
+            res[count] = row
+            count += 1
+        return res
+
 

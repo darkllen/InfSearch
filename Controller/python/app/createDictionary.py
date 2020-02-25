@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from app import app
 from flask import request
+from flask import abort
+
 from contextlib import closing
 import json
 from lxml import etree
@@ -13,10 +15,31 @@ import json
 import collections
 import datrie
 
+import csv
+
 # -*- codecs: utf-8 -*-
 import codecs
 import pymysql
 from pymysql.cursors import DictCursor
+from memory_profiler import memory_usage
+
+
+def transformIndexToMatrix(ind, num):
+  res = ""
+  count = 0
+  i = 0
+  for i in range(num):
+    if count>=len(ind):
+      while len(res) != num:
+        res += "0"
+      break
+    if i==ind[count]:
+      count+=1
+      res+="1"
+    else:
+      res+="0"
+  return res
+
 
 def getAllTextFromFb2(path):
   node = etree.parse(path)
@@ -34,6 +57,34 @@ def getWordsList(text):
         list += words
     list.sort()
     return list
+
+def getWordsListWithIndex(text, num, startBook):
+    list = {}
+    for line in text:
+        words = re.findall("[a-zA-Zа-яА-Я0-9]+[^ ]*[a-zA-Zа-яА-Я0-9]+|[a-zA-Zа-яА-Я0-9]+", line)
+        words = map(lambda x: x.lower(), words)
+        for w in words:
+            if w not in list:
+                list[w] = [num+startBook]
+    return list
+
+def get2WordsListWithIndex(text, num):
+    res = {}
+    line = " ".join(text)
+
+    words = re.findall("[a-zA-Zа-яА-Я0-9]+[^ ]*[a-zA-Zа-яА-Я0-9]+|[a-zA-Zа-яА-Я0-9]+", line)
+    words = list(map(lambda x: x.lower(), words))
+    for w in range(len(words)-1):
+        if words[w]+" "+words[w+1] not in res:
+            res[words[w]+" "+words[w+1]] = [num]
+    return res
+
+def addLists(b, c):
+  for k, v in c.items():
+    if k not in b:
+      b[k] = v
+    else:
+      b[k]+=v
 
 def getWordsWithCoords(text, fileNum):
     list = {}
@@ -62,7 +113,11 @@ def mergeDicts(dicts, uniqueWords):
 
   return merged
 
-def getCoordIndex(FILEPATH, files, uniqueWords):
+def getCoordIndex(FILEPATH, DICTIONARYPATH, name,  files):
+    jsonFile = codecs.open(DICTIONARYPATH + name, 'r', 'utf-8')
+    jsonStr = jsonFile.read()
+    uniqueWords = json.loads(jsonStr)
+
     wordsWithCoordsForEachFile = []
     for i in range(len(files)):
         allText = getAllTextFromFb2(FILEPATH + files[i])
@@ -90,11 +145,10 @@ def getListUnique(list):
       unique.append(list[i])
   return unique
 
-def createWordsList(FILEPATH, files):
+def createWordsListAndInfo(FILEPATH, files):
     sizeOfFiles = 0
     allWordsNumber = 0
     uniqueWords = []
-    uniqueWordsForEachFile = []
 
     for i in files:
         allText = getAllTextFromFb2(FILEPATH + i)
@@ -106,67 +160,53 @@ def createWordsList(FILEPATH, files):
         lists = getListUnique(words)
 
         uniqueWords += lists
-        uniqueWordsForEachFile.append(lists)
 
     uniqueWords.sort()
     uniqueWords = getListUnique(uniqueWords)
     uniqueWordsNumber = len(uniqueWords)
-    return uniqueWords, uniqueWordsForEachFile,  sizeOfFiles, uniqueWordsNumber, allWordsNumber
+    return uniqueWords, sizeOfFiles, uniqueWordsNumber, allWordsNumber
 
-def createInvertIndexAndMatrix(uniqueWords, uniqueWordsForEachFile):
-    indexesArray = [0]*len(uniqueWordsForEachFile)
+def createWordsList(FILEPATH, files):
+    allText = ""
+    for i in files:
+        allText += getAllTextFromFb2(FILEPATH + i)
 
-    dictOfWords = {i: [] for i in uniqueWords}
-    confMatrix = {i: "" for i in uniqueWords}
+    splitedText = splitByTags(allText)
+    words = getWordsList(splitedText)
+    uniqueWords = getListUnique(words)
 
-    for key, value in dictOfWords.items():
-        for currList in range(0, len(uniqueWordsForEachFile)):
-            if len(uniqueWordsForEachFile[currList]) > indexesArray[currList]:
-                if uniqueWordsForEachFile[currList][indexesArray[currList]] == key:
-                    indexesArray[currList] += 1
-                    dictOfWords[key].append(currList)
-                    confMatrix[key] += "1"
-                else:
-                    confMatrix[key] += "0"
-            else:
-                confMatrix[key] += "0"
+    return uniqueWords
 
-    return dictOfWords, confMatrix
+def createInvertIndex(FILEPATH, files, startBook):
+    invertIndex = {}
+    for i in range(len(files)):
+        allText = getAllTextFromFb2(FILEPATH + files[i])
+        splitedText = splitByTags(allText)
+        words = getWordsListWithIndex(splitedText, i, startBook)
+        addLists(invertIndex, words)
+    invertIndex = collections.OrderedDict(sorted(invertIndex.items()))
+    return invertIndex
+def createMatrixFromIndex(index, num):
+    matrix = {k: transformIndexToMatrix(v, num) for k, v in index.items()}
+    matrix = collections.OrderedDict(sorted(matrix.items()))
+    return matrix
 
 def create2wordsIndex(FILEPATH, files):
-    size = 0
-    allWordsNumber = 0
-    listArray = []
-    allFilesList = []
-    indexesArray = []
+    words2Index = {}
+    for i in range(len(files)):
+        allText = getAllTextFromFb2(FILEPATH + files[i])
+        splitedText = splitByTags(allText)
+        words = get2WordsListWithIndex(splitedText, i)
+        addLists(words2Index, words)
+    words2Index = collections.OrderedDict(sorted(words2Index.items()))
+    return words2Index
 
-    for i in files:
-        indexesArray.append(0)
-        allText = getAllTextFromFb2(FILEPATH + i)
-        size += os.path.getsize(FILEPATH + i) / 1024
-        text = splitByTags(allText)
-        words = get2WordsList(text)
-        allWordsNumber += len(words)
+def createPrefixTree(INVPATH, name):
 
-        lists = getListUnique(words)
-        lists.sort()
+    jsonFile = codecs.open(INVPATH + name, 'r', 'utf-8')
+    jsonStr = jsonFile.read()
+    invertIndex = json.loads(jsonStr)
 
-        allFilesList += lists
-        listArray.append(lists)
-
-    allFilesList.sort()
-    allFilesList = getListUnique(allFilesList)
-    dictOfWords = {i: [] for i in allFilesList}
-
-    for key, value in dictOfWords.items():
-        for currList in range(0, len(listArray)):
-            if len(listArray[currList]) > indexesArray[currList]:
-                if listArray[currList][indexesArray[currList]] == key:
-                    indexesArray[currList] += 1
-                    dictOfWords[key].append(currList)
-    return dictOfWords
-
-def createPrefixTree(invertIndex):
     trie = datrie.Trie("абвгдеёжзийклмнопрстуфхцчшщъыьэюя")
     reverseTrie = datrie.Trie("абвгдеёжзийклмнопрстуфхцчшщъыьэюя")
     for k, v in invertIndex.items():
@@ -175,8 +215,13 @@ def createPrefixTree(invertIndex):
     return trie, reverseTrie
 
 
-def create3GramIndex(uniqueWords):
+def create3GramIndex(DICTIONARYPATH, name):
   index = {}
+
+  jsonFile = codecs.open(DICTIONARYPATH + name, 'r', 'utf-8')
+  jsonStr = jsonFile.read()
+  uniqueWords = json.loads(jsonStr)
+
   for word in uniqueWords:
     t = None
     if len(word)!=1:
@@ -192,8 +237,13 @@ def create3GramIndex(uniqueWords):
         index[i] = [word]
   return index
 
-def createPermutationIndex(uniqueWords):
+def createPermutationIndex(DICTIONARYPATH, name):
     permutationIndex = {}
+
+    jsonFile = codecs.open(DICTIONARYPATH + name, 'r', 'utf-8')
+    jsonStr = jsonFile.read()
+    uniqueWords = json.loads(jsonStr)
+
     for i in uniqueWords:
         val = []
 
@@ -204,33 +254,272 @@ def createPermutationIndex(uniqueWords):
     return permutationIndex
 
 
-
-
-def writeToDBAndToFile(list, dictPath, name, allWords, uniqueWords, collectionSize, timeToCreate, booksNum, ids, invertIndexes, invertIndexPath, confMatrix, matrixPath, words2Ind, words2IndPath
-                       ,coordIndex, COORDINDEX, trie,reverseTrie, TRIEINDEX, gramIndex, GRAMINDEX, permutationIndex, PERMUTATIONINDEX):
-    with codecs.open(dictPath + name, 'w', 'utf-8') as f:
-        json.dump(list, f, ensure_ascii=False)
+def writeToDBAndToFile(name, allWords, uniqueWords, collectionSize, timeToCreate, booksNum, ids):
     con = connection.getConnection()
     with con:
         cur = con.cursor()
         query = "INSERT INTO `dictionary`(`name`, `allWords`, `uniqueWords`, `collectionSize`, `timeToCreate`, `booksNum`, `ids`) VALUES ('"+name+"',"+str(allWords)+","+str(uniqueWords)+","+str(collectionSize)+","+str(timeToCreate)+","+str(booksNum)+",'"+ids+"')"
         cur.execute(query)
         con.commit()
-    with codecs.open(invertIndexPath + name, 'w', 'utf-8') as f:
-        json.dump(invertIndexes, f, ensure_ascii=False)
-    with codecs.open(matrixPath + name, 'w', 'utf-8') as f:
-        json.dump(confMatrix, f, ensure_ascii=False)
-    with codecs.open(words2IndPath + name, 'w', 'utf-8') as f:
-        json.dump(words2Ind, f, ensure_ascii=False)
-    with codecs.open(COORDINDEX + name, 'w', 'utf-8') as f:
-        json.dump(coordIndex, f, ensure_ascii=False)
-    with codecs.open(GRAMINDEX + name, 'w', 'utf-8') as f:
-        json.dump(gramIndex, f, ensure_ascii=False)
-    with codecs.open(PERMUTATIONINDEX + name, 'w', 'utf-8') as f:
-        json.dump(permutationIndex, f, ensure_ascii=False)
-    trie.save(TRIEINDEX + name)
-    reverseTrie.save(TRIEINDEX +"r_"+ name)
 
+@app.route('/crDict',methods=['POST'])
+def crDict():
+    name = request.form['name']
+    files = request.form.getlist('files[]')
+    files = list(filter(lambda n: n != "", files))
+    FILEPATH = '../../Model/books/'
+    DICTIONARYPATH = '../../Model/dictionaries/'
+
+
+    startTime = time()
+    uniqueWords= createWordsList(FILEPATH,files)
+    resTime = time() - startTime
+
+    query = "UPDATE `dictionary` SET `dict`=1 WHERE `name`='"+name+"'"
+    con = connection.getConnection()
+    with con:
+        cur = con.cursor()
+        cur.execute(query)
+        con.commit()
+
+
+    with codecs.open(DICTIONARYPATH + name, 'w', 'utf-8') as f:
+        json.dump(uniqueWords, f, ensure_ascii=False)
+
+    print( memory_usage())
+    return {'success':True,'time':resTime}
+
+@app.route('/crInvertIndex',methods=['POST'])
+def crInvertIndex():
+    name = request.form['name']
+    files = request.form.getlist('files[]')
+    files = list(filter(lambda n: n != "", files))
+
+    FILEPATH = '../../Model/books/'
+    INVERTINDEXPATH = '../../Model/invertIndex/'
+    MATRIXPATH = '../../Model/matrix/'
+
+
+    startTime = time()
+    invertIndex = createInvertIndex(FILEPATH, files, 0)
+    confMatrix = createMatrixFromIndex(invertIndex, len(files))
+    resTime = time() - startTime
+
+    query = "UPDATE `dictionary` SET `invertIndex`=1 WHERE `name`='"+name+"'"
+    con = connection.getConnection()
+    with con:
+        cur = con.cursor()
+        cur.execute(query)
+        con.commit()
+
+    with codecs.open(INVERTINDEXPATH + name, 'w', 'utf-8') as f:
+        json.dump(invertIndex, f, ensure_ascii=False)
+    with codecs.open(MATRIXPATH + name, 'w', 'utf-8') as f:
+        json.dump(confMatrix, f, ensure_ascii=False)
+    return {'success':True,'time':resTime}
+
+@app.route('/crInvertIndexByParts',methods=['POST'])
+def crInvertIndexByParts():
+    name = request.form['name']
+    files = request.form.getlist('files[]')
+    files = list(filter(lambda n: n != "", files))
+
+    SIZE_LIMIT = 10000000
+
+
+    FILEPATH = '../../Model/books/'
+    INVERTINDEXBYPARTSPATH = '../../Model/invertIndexByParts/'
+
+    count = 0
+
+    startTime = time()
+
+    step = 0
+    while count<len(files):
+        sizeCur = 0
+        filesCur = []
+        step+=1
+        startBook = count
+        while sizeCur<SIZE_LIMIT and count<len(files):
+            sizeCur+=os.path.getsize(FILEPATH + files[count])
+            filesCur.append(files[count])
+            count+=1
+        invertIndex = createInvertIndex(FILEPATH, filesCur, startBook)
+
+        with codecs.open(INVERTINDEXBYPARTSPATH + name+"_"+str(step), 'w', 'utf-8') as out_file:
+            s = ""
+            for k,v in invertIndex.items():
+                s += str(k) + ":" + str(v) + "\n"
+            out_file.write(s)
+
+
+    output = codecs.open(INVERTINDEXBYPARTSPATH+name, 'w', 'utf-8')
+    output.write("{")
+    readers = [codecs.open(INVERTINDEXBYPARTSPATH+name +"_"+ str(i + 1), 'r', 'utf-8') for i in range(step)]
+    lines = [i.readline().replace("\n", "") for i in readers]
+
+    while  len(lines)!=0:
+        currWord = sorted(lines)[0].split(":")[0]
+        arr = []
+        for i in range(len(lines)):
+            if lines[i].split(":")[0] == currWord:
+                arr += json.loads(lines[i].split(":")[-1])
+                lines[i] = readers[i].readline().replace("\n", "")
+        arr.sort()
+        output.write('"' + currWord + '": ' + str(arr))
+        if "" in lines:
+            lines.remove("")
+        if  len(lines)!=0:
+            output.write(", ")
+    output.write("}")
+    output.close()
+
+    for i in range(step):
+        readers[i].close()
+        os.remove(INVERTINDEXBYPARTSPATH+name +"_"+ str(i + 1))
+    resTime = time() - startTime
+
+    query = "UPDATE `dictionary` SET `invertIndexByParts`=1 WHERE `name`='"+name+"'"
+    con = connection.getConnection()
+    with con:
+        cur = con.cursor()
+        cur.execute(query)
+        con.commit()
+
+
+    return {'success':True,'time':resTime}
+
+
+@app.route('/cr2WordIndex',methods=['POST'])
+def cr2WordIndex():
+    name = request.form['name']
+    files = request.form.getlist('files[]')
+    files = list(filter(lambda n: n != "", files))
+
+    FILEPATH = '../../Model/books/'
+    WORDS2INDPATH = '../../Model/words2Index/'
+
+    startTime = time()
+    words2Ind = create2wordsIndex(FILEPATH, files)
+    resTime = time() - startTime
+
+    query = "UPDATE `dictionary` SET `2WordsIndex`=1 WHERE `name`='"+name+"'"
+    con = connection.getConnection()
+    with con:
+        cur = con.cursor()
+        cur.execute(query)
+        con.commit()
+
+    with codecs.open(WORDS2INDPATH + name, 'w', 'utf-8') as f:
+        json.dump(words2Ind, f, ensure_ascii=False)
+    return {'success':True,'time':resTime}
+
+@app.route('/crCoordIndex',methods=['POST'])
+def crCoordIndex():
+    name = request.form['name']
+    files = request.form.getlist('files[]')
+    files = list(filter(lambda n: n != "", files))
+
+    FILEPATH = '../../Model/books/'
+    COORDINDEX = '../../Model/coordIndex/'
+    DICTIONARYPATH = '../../Model/dictionaries/'
+    try:
+        startTime = time()
+        coordIndex = getCoordIndex(FILEPATH,DICTIONARYPATH,name, files)
+        resTime = time() - startTime
+
+        query = "UPDATE `dictionary` SET `coordIndex`=1 WHERE `name`='"+name+"'"
+        con = connection.getConnection()
+        with con:
+            cur = con.cursor()
+            cur.execute(query)
+            con.commit()
+
+        with codecs.open(COORDINDEX + name, 'w', 'utf-8') as f:
+            json.dump(coordIndex, f, ensure_ascii=False)
+        return {'success':True,'time':resTime}
+    except:
+        abort(500)
+
+@app.route('/crGramIndex',methods=['POST'])
+def crGramIndex():
+    name = request.form['name']
+    files = request.form.getlist('files[]')
+    files = list(filter(lambda n: n != "", files))
+
+    GRAMINDEX = '../../Model/gramIndex/'
+    DICTIONARYPATH = '../../Model/dictionaries/'
+    try:
+        startTime = time()
+        gramIndex = create3GramIndex(DICTIONARYPATH, name)
+        resTime = time() - startTime
+
+        query = "UPDATE `dictionary` SET `gramIndex`=1 WHERE `name`='"+name+"'"
+        con = connection.getConnection()
+        with con:
+            cur = con.cursor()
+            cur.execute(query)
+            con.commit()
+
+        with codecs.open(GRAMINDEX + name, 'w', 'utf-8') as f:
+            json.dump(gramIndex, f, ensure_ascii=False)
+        return {'success':True,'time':resTime}
+    except:
+        abort(500)
+
+@app.route('/crPermutationIndex',methods=['POST'])
+def crPermutationIndex():
+    name = request.form['name']
+    files = request.form.getlist('files[]')
+    files = list(filter(lambda n: n != "", files))
+
+    PERMUTATIONINDEX = '../../Model/permutationIndex/'
+    DICTIONARYPATH = '../../Model/dictionaries/'
+    try:
+        startTime = time()
+        permutationIndex = createPermutationIndex(DICTIONARYPATH, name)
+        resTime = time() - startTime
+
+        query = "UPDATE `dictionary` SET `permutationIndex`=1 WHERE `name`='"+name+"'"
+        con = connection.getConnection()
+        with con:
+            cur = con.cursor()
+            cur.execute(query)
+            con.commit()
+
+        with codecs.open(PERMUTATIONINDEX + name, 'w', 'utf-8') as f:
+            json.dump(permutationIndex, f, ensure_ascii=False)
+        return {'success':True,'time':resTime}
+    except:
+        abort(500)
+
+@app.route('/crTrieIndex',methods=['POST'])
+def crTrieIndex():
+    name = request.form['name']
+    files = request.form.getlist('files[]')
+    files = list(filter(lambda n: n != "", files))
+
+    TRIEINDEX = '../../Model/trieIndex/'
+    INVERTINDEXPATH = '../../Model/invertIndex/'
+
+
+    try:
+        startTime = time()
+        trieIndex, reverseTrieIndex = createPrefixTree(INVERTINDEXPATH, name)
+        resTime = time() - startTime
+
+        query = "UPDATE `dictionary` SET `trieIndex`=1 WHERE `name`='" + name + "'"
+        con = connection.getConnection()
+        with con:
+            cur = con.cursor()
+            cur.execute(query)
+            con.commit()
+
+        trieIndex.save(TRIEINDEX + name)
+        reverseTrieIndex.save(TRIEINDEX + "r_" + name)
+        return {'success': True, 'time': resTime}
+    except:
+        abort(500)
 
 
 @app.route('/createDictionary',methods=['POST'])
@@ -245,7 +534,6 @@ def createDictionary():
     cur = con.cursor()
     cur.execute("Select `name` from `dictionary` where `name`='"+name+"'")
     row = cur.fetchone()
-    print(row)
     if row is not None:
         return "Dict is already exist"
     # get books
@@ -255,34 +543,16 @@ def createDictionary():
             row = cur.fetchone()
             files.append(row['name'])
 
-
-    print(files)
-
     FILEPATH = '../../Model/books/'
-    DICTIONARYPATH = '../../Model/dictionaries/'
-    INVERTINDEXPATH = '../../Model/invertIndex/'
-    MATRIXPATH = '../../Model/matrix/'
-    WORDS2INDPATH = '../../Model/words2Index/'
-    COORDINDEX = '../../Model/coordIndex/'
-    TRIEINDEX = '../../Model/trieIndex/'
-    GRAMINDEX = '../../Model/gramIndex/'
-    PERMUTATIONINDEX = '../../Model/permutationIndex/'
+
 
     # get all dicts and lists for record
     startTime = time()
-    uniqueWords, uniqueWordsForEachFile,  sizeOfFiles, uniqueWordsNumber, allWordsNumber = createWordsList(FILEPATH, files)
-    invertIndex, confMatrix = createInvertIndexAndMatrix(uniqueWords, uniqueWordsForEachFile)
-    coordIndex = getCoordIndex(FILEPATH, files, uniqueWords)
-    trie, reverseTrie = createPrefixTree(invertIndex)
-    gramIndex = create3GramIndex(uniqueWords)
-    permutationIndex = createPermutationIndex(uniqueWords)
-    words2Ind = create2wordsIndex(FILEPATH, files)
+    uniqueWords,  sizeOfFiles, uniqueWordsNumber, allWordsNumber = createWordsListAndInfo(FILEPATH, files)
     resTime = time()-startTime
 
     # record all information
-    writeToDBAndToFile(uniqueWords, DICTIONARYPATH, name, allWordsNumber, uniqueWordsNumber, sizeOfFiles, resTime, len(files), ' '.join(ids),
-                       invertIndex, INVERTINDEXPATH, confMatrix, MATRIXPATH, words2Ind, WORDS2INDPATH
-                       ,coordIndex, COORDINDEX, trie, reverseTrie, TRIEINDEX, gramIndex, GRAMINDEX, permutationIndex, PERMUTATIONINDEX)
+    writeToDBAndToFile(name, allWordsNumber, uniqueWordsNumber, sizeOfFiles, resTime, len(files), ' '.join(ids))
 
     return json.dumps({'success':True, 'name':name, 'size':sizeOfFiles, 'allWords':allWordsNumber, 'uniqueWords':uniqueWordsNumber,
                        'time':resTime, 'booksNum':len(files)}), 200, {'ContentType':'application/json'}

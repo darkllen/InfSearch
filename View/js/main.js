@@ -1,10 +1,12 @@
+currBooks = [];
 //get all books and output them in modal window
 $("#buttonChoseBooks").click(function () {
+	$("#booksList").height(document.documentElement.clientHeight/3);
 	$.ajax({
 		url: "http://193.111.0.203:5000/getBooks",
 		success: function (data) {
 			$("#booksList").children().remove();
-			$("#booksList").append( '<div class="row border-bottom border-primary">'  +'<div class="col-sm-1 border-right"> <p class="w-100 text-center">id</p></div>'+ '<div class="col-sm-7 border-right"> <p class="w-100 text-center">name</p></div>'+'<div class="col-sm-3 border-right"> <p class="w-100 text-center">size</p></div>'+'<div class="col-sm-1"> </div>'+'</div>');
+			$("#booksList").append( '<div class="row border-bottom border-primary">'  +'<div class="col-sm-1 border-right"> <p class="w-100 text-center">id</p></div>'+ '<div class="col-sm-7 border-right"> <p class="w-100 text-center">name</p></div>'+'<div class="col-sm-3 border-right"> <p class="w-100 text-center">size</p></div>'+'<div class="col-sm-1"> <div class=\"form-check\"> <input class=\"form-check-input position-static\" type=\"checkbox\" id=\"book_all\" value=\"option_all\" aria-label=\"...\"></div></div>'+'</div>');
 			for(var i = 1; i<=Object.keys(data).length; i++){
 				var id = data[i]["id"];
 				var name = data[i]["name"]
@@ -12,10 +14,174 @@ $("#buttonChoseBooks").click(function () {
 				var str = '<div class=\"row border-bottom\"><div class=\"col-sm-1 border-right\"> <p class=\"w-100 text-center\">'+id+'</p></div><div class=\"col-sm-7 border-right\"> <p id="book_name_'+id+'" class=\"w-100 text-center\">'+name+'</p></div><div class=\"col-sm-3 border-right\"> <p class=\"w-100 text-center\">'+size.toFixed(1)+'</p></div><div class=\"col-sm-1\"><div class=\"form-check\"> <input class=\"checkBoxBook form-check-input position-static\" type=\"checkbox\" id=\"book_'+id+'\" value=\"option_'+id+'\" aria-label=\"...\"></div></div></div>'
 				$("#booksList").append(str);
 			}
-			$("#booksList").append('<input id="dictID" class="form-control" type="text" placeholder="name">');
 		}
 	});
 })
+
+$("#crDict").click(function() {
+		res = {
+			name:$("#dictName").text(),
+			files : currBooks
+		}
+		$.ajax({
+		url: "http://193.111.0.203:5000/crDict",
+		type: "POST",
+		data: res,
+		success: function (data) {
+			console.log(data["time"]);
+			$("#crDict").text("create dictionary - "+data["time"].toFixed(2));
+			$("#crDict").removeClass("btn-secondary").removeClass("btn-danger").addClass("btn-success");
+		},
+		error: function (data) {
+			console.log(data);
+		}
+	});
+})
+$("#crInvertIndex").click(function() {
+		res = {
+			name:$("#dictName").text(),
+			files : currBooks
+		}
+		$.ajax({
+		url: "http://193.111.0.203:5000/crInvertIndex",
+		type: "POST",
+		data: res,
+		success: function (data) {
+			console.log(data["time"]);
+			$("#crInvertIndex").text("create invert index - "+data["time"].toFixed(2));
+			$("#crInvertIndex").removeClass("btn-secondary").removeClass("btn-danger").addClass("btn-success");
+		},
+		error: function (data) {
+			console.log(data);
+		}
+	});
+})
+$("#cr2WordIndex").click(function() {
+		res = {
+			name:$("#dictName").text(),
+			files : currBooks
+		}
+		$.ajax({
+		url: "http://193.111.0.203:5000/cr2WordIndex",
+		type: "POST",
+		data: res,
+		success: function (data) {
+			console.log(data["time"]);
+			$("#cr2WordIndex").text("create 2 words index - "+data["time"].toFixed(2));
+			$("#cr2WordIndex").removeClass("btn-secondary").removeClass("btn-danger").addClass("btn-success");
+		},
+		error: function (data) {
+			console.log(data);
+		}
+	});
+})
+$("#crCoordIndex").click(function() {
+		res = {
+			name:$("#dictName").text(),
+			files : currBooks
+		}
+		$.ajax({
+		url: "http://193.111.0.203:5000/crCoordIndex",
+		type: "POST",
+		data: res,
+		success: function (data) {
+			console.log(data["time"]);
+			$("#crCoordIndex").text("create coordIndex - "+data["time"].toFixed(2));
+			$("#crCoordIndex").removeClass("btn-secondary").removeClass("btn-danger").addClass("btn-success");
+		},
+		error: function (data) {
+				alert("dictionary should be created first");
+		}
+	});
+})
+$("#crGramIndex").click(function() {
+		res = {
+			name:$("#dictName").text(),
+			files : currBooks
+		}
+		$.ajax({
+		url: "http://193.111.0.203:5000/crGramIndex",
+		type: "POST",
+		data: res,
+		success: function (data) {
+			console.log(data["time"]);
+			$("#crGramIndex").text("create gram index - "+data["time"].toFixed(2));
+			$("#crGramIndex").removeClass("btn-secondary").removeClass("btn-danger").addClass("btn-success");
+		},
+		error: function (data) {
+				alert("dictionary should be created first");
+		}
+	});
+})
+$("#crPermutationIndex").click(function() {
+		res = {
+			name:$("#dictName").text(),
+			files : currBooks
+		}
+		$.ajax({
+		url: "http://193.111.0.203:5000/crPermutationIndex",
+		type: "POST",
+		data: res,
+		success: function (data) {
+			console.log(data["time"]);
+			$("#crPermutationIndex").text("create permutation index - "+data["time"].toFixed(2));
+			$("#crPermutationIndex").removeClass("btn-secondary").removeClass("btn-danger").addClass("btn-success");
+		},
+		error: function (data) {
+			alert("dictionary should be created first");
+		}
+	});
+})
+$("#crTrieIndex").click(function() {
+		res = {
+			name:$("#dictName").text(),
+			files : currBooks
+		}
+		$.ajax({
+		url: "http://193.111.0.203:5000/crTrieIndex",
+		type: "POST",
+		data: res,
+		success: function (data) {
+			console.log(data["time"]);
+			$("#crTrieIndex").text("create trie index - "+data["time"].toFixed(2));
+			$("#crTrieIndex").removeClass("btn-secondary").removeClass("btn-danger").addClass("btn-success");
+		},
+		error: function (data) {
+			alert("invert index should be created first");
+		}
+	});
+})
+$("#crInvertIndexByParts").click(function() {
+		res = {
+			name:$("#dictName").text(),
+			files : currBooks
+		}
+		$.ajax({
+		url: "http://193.111.0.203:5000/crInvertIndexByParts",
+		type: "POST",
+		data: res,
+		success: function (data) {
+			console.log(data["time"]);
+			$("#crInvertIndexByParts").text("create invert index by parts - "+data["time"].toFixed(2));
+			$("#crInvertIndexByParts").removeClass("btn-secondary").removeClass("btn-danger").addClass("btn-success");
+		},
+		error: function (data) {
+			alert("error");
+		}
+	});
+})
+
+
+
+//choose all books from list 
+$(document).on('click', '#book_all', function (e) {
+	console.log($(".checkBoxBook"));
+	if($("#book_all").prop( "checked"))
+		$(".checkBoxBook").prop( "checked", true );
+	else
+		$(".checkBoxBook").prop( "checked", false );
+		
+	});
 
 //change dictionary
 $("#buttonChange").click(function () {
@@ -60,6 +226,38 @@ $("#buttonChange").click(function () {
 			  	$("#dictionariesList").append(str1+str3+str4+str5+str6+str7);
 			  	//event to change dictionary
 			  	$(document).on('click', '#choose_book_'+id, function () {
+			  		//TODO here
+			  		var id = $(this).attr("id").split("_")[2];
+			  		console.log(names);
+			  		console.log(id);
+			  		console.log(names[id]);
+			  		namet = names[id];
+
+					var res = {
+						name: namet
+					};
+					console.log(res);
+			  		$.ajax({
+			  			type: "GET",
+			  			data: res,
+						url: "http://193.111.0.203:5000/getCreatedDicts",
+						success: function (data) {
+							arr = {"invertIndexByParts":"#crInvertIndexByParts","dict":"#crDict", "coordIndex":"#crCoordIndex", "2WordsIndex":"#cr2WordIndex", "gramIndex":"#crGramIndex", "invertIndex":"#crInvertIndex", "permutationIndex": "#crPermutationIndex","trieIndex":"#crTrieIndex"};	
+							for (var key in arr) {
+								if (data[1][key]) {
+									$(arr[key]).removeClass("btn-secondary").removeClass("btn-danger").addClass("btn-success");
+								}else{
+									$(arr[key]).removeClass("btn-secondary").removeClass("btn-success").addClass("btn-danger");
+								}
+							}
+
+						},
+						error:function (data) {
+							console.log(1);
+							console.log(data);
+						}
+					});
+
 			  		var id = $(this).attr("id").split("_")[2];
 					$("#dictName").text(names[id]);
 					$("#infoBooksNum").text("Books in collection: "+books[id]);
@@ -68,6 +266,17 @@ $("#buttonChange").click(function () {
 					$("#infoUniqueWords").text("Unique words: "+uniqueWords[id]);
 					$("#infoTime").text("Time to create: "+time[id].toFixed(3) + " s");
 					$(".booksNameInInfo").detach();
+
+					//clear all buttons 
+					$("#crDict").text("create dictionary");
+					$("#crInvertIndex").text("create invert index");
+					$("#cr2WordIndex").text("create 2 words index");
+					$("#crCoordIndex").text("create coordIndex");
+					$("#crGramIndex").text("create gram index");
+					$("#crPermutationIndex").text("create permutation index");
+					$("#crTrieIndex").text("create trie index");
+
+
 					var booksName = [];
 					var idList = ids[id].split(" ");
 					//get books name
@@ -81,6 +290,7 @@ $("#buttonChange").click(function () {
 								allIds[data[i]['id']] = data[i]['name'];
 							}
 							idList.forEach(el=> booksName[parseInt(el)] =  allIds[parseInt(el)]);
+							currBooks = booksName;
 							booksName.forEach(el=> $("#infoColumn").append('<div class="booksNameInInfo row border-bottom border-secondary">'+el+'</div>'));
 						}
 					});
@@ -299,6 +509,7 @@ $("#buttonCreateDictionary").click(function () {
 			names.push($("#book_name_"+$(this).prop("id").split("_")[1]).text());
 		}
 	});
+	currBooks = names;
 	var res = {
 		name: namet,
 		id: ids
@@ -321,6 +532,21 @@ $("#buttonCreateDictionary").click(function () {
 			for (var i = 0; i < names.length; i++) {
 				$("#infoColumn").append('<div class="booksNameInInfo row border-bottom border-secondary">'+names[i]+'</div>');
 			}
+
+						//clear all buttons 
+			$("#crDict").text("create dictionary");
+			$("#crInvertIndex").text("create invert index");
+			$("#cr2WordIndex").text("create 2 words index");
+			$("#crCoordIndex").text("create coordIndex");
+			$("#crGramIndex").text("create gram index");
+			$("#crPermutationIndex").text("create permutation index");
+			$("#crTrieIndex").text("create trie index");
+			arr = {"invertIndexByParts":"#crInvertIndexByParts","dict":"#crDict", "coordIndex":"#crCoordIndex", "2WordsIndex":"#cr2WordIndex", "gramIndex":"#crGramIndex", "invertIndex":"#crInvertIndex", "permutationIndex": "#crPermutationIndex","trieIndex":"#crTrieIndex"};	
+			for (var key in arr) {
+				$(arr[key]).removeClass("btn-secondary").removeClass("btn-success").addClass("btn-danger");
+			
+			}
+
 		},
 		error:function (argument) {
 			console.log(argument);

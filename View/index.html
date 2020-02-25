@@ -9,18 +9,63 @@
 <body>
   <!-- main container -->
 	<div class="container-fluid">
-      <div class="row">
+      <div class="row" >
         <!-- ------------------------------------------------------------------------------------------------------ -->
         <!-- column for comands -->
-        <div class="col-sm border-right">
+        <div class="col-sm border-right overflow-auto">
             <!-- commands title -->
     	      <div class="row border-bottom border-danger"><p class="w-100 text-center">commands</p></div>
             <!-- button to add new book -->
     	      <div  class="row">
-              <button id="addBook" type="button" class="btn btn-secondary w-100 border-bottom" data-toggle="modal" data-target="#modalBookChose">
+              <button id="addBook" type="button" class="btn btn-secondary w-100 border-bottom border-primary" data-toggle="modal" data-target="#modalBookChose">
                 add Book
               </button>
             </div>
+            <div  class="row" style="height: 5%"></div>
+
+            <div  class="row">
+              <button id="crDict" type="button" class="btn btn-secondary w-100 border-bottom">
+                create dictionary
+              </button>
+            </div>
+            <div  class="row">
+              <button id="crInvertIndex" type="button" class="btn btn-secondary w-100 border-bottom">
+                create invert index
+              </button>
+            </div>
+            <div  class="row">
+              <button id="cr2WordIndex" type="button" class="btn btn-secondary w-100 border-bottom">
+                create 2 word index
+              </button>
+            </div>
+            <div  class="row">
+              <button id="crCoordIndex" type="button" class="btn btn-secondary w-100 border-bottom">
+                create coordIndex
+              </button>
+            </div>
+            <div  class="row">
+              <button id="crGramIndex" type="button" class="btn btn-secondary w-100 border-bottom">
+                create gram index
+              </button>
+            </div>
+            <div  class="row">
+              <button id="crPermutationIndex" type="button" class="btn btn-secondary w-100 border-bottom">
+                create permutation index
+              </button>
+            </div>
+            <div  class="row">
+              <button id="crTrieIndex" type="button" class="btn btn-secondary w-100 border-bottom">
+                create trie index
+              </button>
+            </div>
+            <div  class="row">
+              <button id="crInvertIndexByParts" type="button" class="btn btn-secondary w-100 border-bottom">
+                create invert index by parts
+              </button>
+            </div>
+
+
+            <div  class="row" style="height: 5%"></div>
             <div  class="row ">
             <!-- Button to show dictionary -->
                 <button id="showWords" type="button" class="btn btn-secondary w-100 border-bottom">
@@ -37,12 +82,6 @@
             <!-- Button to show matrix -->
                 <button id="showMatrix" type="button" class="btn btn-secondary w-100 border-bottom">
                   show matrix
-                </button>       
-            </div>
-            <div  class="row ">
-            <!-- Button to search -->
-                <button id="boolSearch" type="button" class="btn btn-secondary w-100 border-bottom">
-                  search
                 </button>       
             </div>
             <div  class="row ">
@@ -73,6 +112,14 @@
             <!-- Button to show gramIndex -->
                 <button id="gramIndex" type="button" class="btn btn-secondary w-100 border-bottom">
                   show gram Index
+                </button>       
+            </div>
+
+            <div  class="row" style="height: 5%"></div>
+            <div  class="row ">
+            <!-- Button to search -->
+                <button id="boolSearch" type="button" class="btn btn-secondary w-100 border-bottom">
+                  search
                 </button>       
             </div>
         <!-- end command column  -->
@@ -165,9 +212,10 @@
         </div>
         <!-- output all books to chose -->
         <div id="booksToChose" class="modal-body">
-          <div id="booksList" class="container-fluid"> 
+          <div id="booksList" class="container-fluid overflow-auto"> 
           </div>
         </div>
+        <input id="dictID" class="form-control" type="text" placeholder="name">
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           <button id="buttonCreateDictionary" type="button" class="btn btn-primary">Create</button>
