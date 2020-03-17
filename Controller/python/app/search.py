@@ -4,7 +4,7 @@ from flask import request
 import codecs
 import json
 import re
-import connection
+from app import connection
 from time import time
 import datrie
 

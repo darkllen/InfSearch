@@ -37,6 +37,44 @@ $("#crDict").click(function() {
 		}
 	});
 })
+$("#crDictCompressed").click(function() {
+		res = {
+			name:$("#dictName").text(),
+			files : currBooks
+		}
+		$.ajax({
+		url: "http://193.111.0.203:5000/crDictCompressed",
+		type: "POST",
+		data: res,
+		success: function (data) {
+			console.log(data["time"]);
+			$("#crDictCompressed").text("create dictionary compressed - "+data["time"].toFixed(2));
+			$("#crDictCompressed").removeClass("btn-secondary").removeClass("btn-danger").addClass("btn-success");
+		},
+		error: function (data) {
+			console.log(data);
+		}
+	});
+})
+$("#crInvertIndexCompressed").click(function() {
+		res = {
+			name:$("#dictName").text(),
+			files : currBooks
+		}
+		$.ajax({
+		url: "http://193.111.0.203:5000/crInvertIndexCompressed",
+		type: "POST",
+		data: res,
+		success: function (data) {
+			console.log(data["time"]);
+			$("#crInvertIndexCompressed").text("create invert index compressed - "+data["time"].toFixed(2));
+			$("#crInvertIndexCompressed").removeClass("btn-secondary").removeClass("btn-danger").addClass("btn-success");
+		},
+		error: function (data) {
+			console.log(data);
+		}
+	});
+})
 $("#crInvertIndex").click(function() {
 		res = {
 			name:$("#dictName").text(),
@@ -242,7 +280,7 @@ $("#buttonChange").click(function () {
 			  			data: res,
 						url: "http://193.111.0.203:5000/getCreatedDicts",
 						success: function (data) {
-							arr = {"invertIndexByParts":"#crInvertIndexByParts","dict":"#crDict", "coordIndex":"#crCoordIndex", "2WordsIndex":"#cr2WordIndex", "gramIndex":"#crGramIndex", "invertIndex":"#crInvertIndex", "permutationIndex": "#crPermutationIndex","trieIndex":"#crTrieIndex"};	
+							arr = {"invertIndexCompressed":"#crInvertIndexCompressed","dictCompressed":"#crDictCompressed","invertIndexByParts":"#crInvertIndexByParts","dict":"#crDict", "coordIndex":"#crCoordIndex", "2WordsIndex":"#cr2WordIndex", "gramIndex":"#crGramIndex", "invertIndex":"#crInvertIndex", "permutationIndex": "#crPermutationIndex","trieIndex":"#crTrieIndex"};	
 							for (var key in arr) {
 								if (data[1][key]) {
 									$(arr[key]).removeClass("btn-secondary").removeClass("btn-danger").addClass("btn-success");
@@ -541,7 +579,7 @@ $("#buttonCreateDictionary").click(function () {
 			$("#crGramIndex").text("create gram index");
 			$("#crPermutationIndex").text("create permutation index");
 			$("#crTrieIndex").text("create trie index");
-			arr = {"invertIndexByParts":"#crInvertIndexByParts","dict":"#crDict", "coordIndex":"#crCoordIndex", "2WordsIndex":"#cr2WordIndex", "gramIndex":"#crGramIndex", "invertIndex":"#crInvertIndex", "permutationIndex": "#crPermutationIndex","trieIndex":"#crTrieIndex"};	
+			arr = {"invertIndexCompressed":"#crInvertIndexCompressed","dictCompressed":"#crDictCompressed", "invertIndexByParts":"#crInvertIndexByParts","dict":"#crDict", "coordIndex":"#crCoordIndex", "2WordsIndex":"#cr2WordIndex", "gramIndex":"#crGramIndex", "invertIndex":"#crInvertIndex", "permutationIndex": "#crPermutationIndex","trieIndex":"#crTrieIndex"};	
 			for (var key in arr) {
 				$(arr[key]).removeClass("btn-secondary").removeClass("btn-success").addClass("btn-danger");
 			

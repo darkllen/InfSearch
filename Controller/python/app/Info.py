@@ -3,7 +3,9 @@ from app import app
 from contextlib import closing
 from flask import send_file
 from flask import request
-import connection
+from app import connection
+
+
 
 
 
@@ -55,7 +57,7 @@ def getCreatedDicts():
     con = connection.getConnection()
     with con:
         cur = con.cursor()
-        cur.execute("SELECT `dict`, `invertIndex`, `coordIndex`, `2WordsIndex`, `gramIndex`, `permutationIndex`, `trieIndex`, `invertIndexByParts` FROM `dictionary` WHERE `name`='"+name+"'")
+        cur.execute("SELECT `dict`, `invertIndex`, `coordIndex`, `2WordsIndex`, `gramIndex`, `permutationIndex`, `trieIndex`, `invertIndexByParts`, `dictCompressed`, `invertIndexCompressed` FROM `dictionary` WHERE `name`='"+name+"'")
         rows = cur.fetchall()
         count = 1
         res = {}
@@ -63,5 +65,3 @@ def getCreatedDicts():
             res[count] = row
             count += 1
         return res
-
-

@@ -6,3 +6,4 @@ CORS(app)
 from app import Info
 from app import createDictionary
 from app import search
+from app import connection
