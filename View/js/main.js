@@ -516,14 +516,23 @@ $(document).on('click', '#buttonSearch', function (e) {
 	};
 		$.ajax({
 		type:"POST",
-		url: "http://193.111.0.203:5000/boolSearch",
+		url: "http://193.111.0.203:5000/search",
 		data: res,
 		dataType: "json",
 		success:function (data) {
-			console.log(data[0]);
+			st = ""
+			$.each(data['names'], function(k, v){
+				if (typeof v != "object"){
+					st= st + k + " : " + v.toFixed(2) + "<br>";
+				}else{
+					st= st + k + " : " + v + "<br>";
+				}
+				
+			});
+			console.log(data);
 			$(".searchRes").detach();
 			$("#infoZone").append('<div class = "row w-100 searchRes">Time: '+ data['time']+ ' s</div>');
-			$("#infoZone").append('<div class = "row w-100 searchRes">Search Result:<br> '+ data['names'].join("<br>").replace(/,/g, "<br>")+ '</div>');
+			$("#infoZone").append('<div class = "row w-100 searchRes">Search Result:<br> '+ st);
 		},
 		error:function (argument) {
 			console.log(argument);

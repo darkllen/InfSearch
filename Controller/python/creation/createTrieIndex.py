@@ -14,3 +14,4 @@ def createPrefixTree(INVPATH, name):
         trie[k] = v
         reverseTrie[k[::-1]] = v
     return trie, reverseTrie
+

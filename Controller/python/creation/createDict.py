@@ -31,3 +31,32 @@ def createWordsList(FILEPATH, files):
     words = helpParse.getWordsList(splitedText)
     uniqueWords = helpParse.getListUnique(words)
     return uniqueWords
+
+
+def createAuthorsList(FILEPATH, files):
+    allText = ""
+    for i in files:
+        allText += helpParse.getAuthor(FILEPATH + i)
+
+    splitedText = helpParse.splitByTags(allText)
+    words = helpParse.getWordsList(splitedText)
+    uniqueWords = helpParse.getListUnique(words)
+    return uniqueWords
+def createTitleList(FILEPATH, files):
+    allText = ""
+    for i in files:
+        allText += helpParse.getBookTitle(FILEPATH + i)
+
+    splitedText = helpParse.splitByTags(allText)
+    words = helpParse.getWordsList(splitedText)
+    uniqueWords = helpParse.getListUnique(words)
+    return uniqueWords
+def createAnnotationList(FILEPATH, files):
+    allText = ""
+    for i in files:
+        allText += helpParse.getBookAnnotation(FILEPATH + i)
+
+    splitedText = helpParse.splitByTags(allText)
+    words = helpParse.getWordsList(splitedText)
+    uniqueWords = helpParse.getListUnique(words)
+    return uniqueWords

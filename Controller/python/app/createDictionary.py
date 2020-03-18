@@ -109,7 +109,7 @@ def crInvertIndexCompressed():
     invertIndexCompression.recordCompressedIndex(encoded, DICTIONARYPATH+name)
     resTime = time() - startTime
 
-    query = "UPDATE `dictionary` SET `dictCompressed`=1 WHERE `name`='"+name+"'"
+    query = "UPDATE `dictionary` SET `invertIndexCompressed`=1 WHERE `name`='"+name+"'"
     con = connection.getConnection()
     with con:
         cur = con.cursor()
@@ -377,6 +377,75 @@ def createDictionary():
     # get all dicts and lists for record
     startTime = time()
     uniqueWords,  sizeOfFiles, uniqueWordsNumber, allWordsNumber = createDict.createWordsListAndInfo(FILEPATH, files)
+
+    DICTIONARYPATH = '../../Model/dictionaries/'
+    WORDS2INDPATH = '../../Model/words2Index/'
+    COORDINDEX = '../../Model/coordIndex/'
+    TRIEINDEX = '../../Model/trieIndex/'
+    INVERTINDEXPATH = '../../Model/invertIndex/'
+    MATRIXPATH = '../../Model/matrix/'
+
+    #authors
+    dictAuthors = createDict.createAuthorsList(FILEPATH, files)
+    with codecs.open(DICTIONARYPATH + name + "Author", 'w', 'utf-8') as f:
+        json.dump(dictAuthors, f, ensure_ascii=False)
+    invIndexAuthors = createInvertIndex.createInvertIndexAuthors(FILEPATH, files)
+    with codecs.open(INVERTINDEXPATH + name + "Author", 'w', 'utf-8') as f:
+        json.dump(invIndexAuthors, f, ensure_ascii=False)
+    matrixAuthors = createInvertIndex.createMatrixFromIndex(invIndexAuthors, len(files))
+    with codecs.open(MATRIXPATH + name + "Author", 'w', 'utf-8') as f:
+        json.dump(matrixAuthors, f, ensure_ascii=False)
+    coordIndAuthors = createCoordIndex.getCoordIndexAuthors(FILEPATH, DICTIONARYPATH, name+"Author",  files)
+    with codecs.open(COORDINDEX + name + "Author", 'w', 'utf-8') as f:
+        json.dump(coordIndAuthors, f, ensure_ascii=False)
+    Words2IndAuthors = create2WordsIndex.create2wordsIndexAuthors(FILEPATH, files)
+    with codecs.open(WORDS2INDPATH + name + "Author", 'w', 'utf-8') as f:
+        json.dump(Words2IndAuthors, f, ensure_ascii=False)
+    trieAuthors, revTrieAuthors = createTrieIndex.createPrefixTree(INVERTINDEXPATH, name+"Author")
+    trieAuthors.save(TRIEINDEX + name+ "Author")
+    revTrieAuthors.save(TRIEINDEX + "r_" + name+ "Author")
+    # title
+    dictTitles = createDict.createTitleList(FILEPATH, files)
+    with codecs.open(DICTIONARYPATH + name + "Title", 'w', 'utf-8') as f:
+        json.dump(dictTitles, f, ensure_ascii=False)
+    invIndexTitles = createInvertIndex.createInvertIndexTitles(FILEPATH, files)
+    with codecs.open(INVERTINDEXPATH + name + "Title", 'w', 'utf-8') as f:
+        json.dump(invIndexTitles, f, ensure_ascii=False)
+    matrixTitles = createInvertIndex.createMatrixFromIndex(invIndexTitles, len(files))
+    with codecs.open(MATRIXPATH + name + "Title", 'w', 'utf-8') as f:
+        json.dump(matrixTitles, f, ensure_ascii=False)
+    coordIndTitles = createCoordIndex.getCoordIndexTitles(FILEPATH, DICTIONARYPATH, name+"Title", files)
+    with codecs.open(COORDINDEX + name + "Title", 'w', 'utf-8') as f:
+        json.dump(coordIndTitles, f, ensure_ascii=False)
+    Words2IndTitles = create2WordsIndex.create2wordsIndexTitles(FILEPATH, files)
+    with codecs.open(WORDS2INDPATH + name + "Title", 'w', 'utf-8') as f:
+        json.dump(Words2IndTitles, f, ensure_ascii=False)
+    trieTitles, revTrieTitles = createTrieIndex.createPrefixTree(INVERTINDEXPATH, name+"Title")
+    trieTitles.save(TRIEINDEX + name + "Title")
+    revTrieTitles.save(TRIEINDEX + "r_" + name + "Title")
+    #anotation
+    dictAnnotation = createDict.createAnnotationList(FILEPATH, files)
+    with codecs.open(DICTIONARYPATH + name + "Annotation", 'w', 'utf-8') as f:
+        json.dump(dictAnnotation, f, ensure_ascii=False)
+    indAnnotation = createInvertIndex.createInvertIndexAnnotation(FILEPATH, files)
+    with codecs.open(INVERTINDEXPATH + name + "Annotation", 'w', 'utf-8') as f:
+        json.dump(indAnnotation, f, ensure_ascii=False)
+    matrixAnnotation = createInvertIndex.createMatrixFromIndex(indAnnotation, len(files))
+    with codecs.open(MATRIXPATH + name + "Annotation", 'w', 'utf-8') as f:
+        json.dump(matrixAnnotation, f, ensure_ascii=False)
+    coordIndAnnotation = createCoordIndex.getCoordIndexAnnotation(FILEPATH, DICTIONARYPATH, name+"Annotation", files)
+    with codecs.open(COORDINDEX + name + "Annotation", 'w', 'utf-8') as f:
+        json.dump(coordIndAnnotation, f, ensure_ascii=False)
+    Words2IndAnnotation = create2WordsIndex.create2wordsIndexAnnotations(FILEPATH, files)
+    with codecs.open(WORDS2INDPATH + name + "Annotation", 'w', 'utf-8') as f:
+        json.dump(Words2IndAnnotation, f, ensure_ascii=False)
+    trieIndAnnotation, revTrieAnnotation = createTrieIndex.createPrefixTree(INVERTINDEXPATH, name+"Annotation")
+    trieIndAnnotation.save(TRIEINDEX + name + "Annotation")
+    revTrieAnnotation.save(TRIEINDEX + "r_" + name + "Annotation")
+
+
+
+
     dictionary.encode(uniqueWords, DICTIONARYPATH + name)
     resTime = time()-startTime
 

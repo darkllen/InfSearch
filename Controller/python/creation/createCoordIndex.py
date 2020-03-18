@@ -18,3 +18,48 @@ def getCoordIndex(FILEPATH, DICTIONARYPATH, name,  files):
     coordIndex = helpParse.mergeDicts(wordsWithCoordsForEachFile, uniqueWords)
     print("b")
     return coordIndex
+
+
+
+def getCoordIndexAuthors(FILEPATH, DICTIONARYPATH, name,  files):
+    jsonFile = codecs.open(DICTIONARYPATH + name, 'r', 'utf-8')
+    jsonStr = jsonFile.read()
+    uniqueWords = json.loads(jsonStr)
+    #uniqueWords = dictionary.decode(DICTIONARYPATH + name)
+    wordsWithCoordsForEachFile = []
+    print("a")
+    for i in range(len(files)):
+        allText = helpParse.getAuthor(FILEPATH + files[i])
+        splitedText = helpParse.splitByTags(allText)
+        wordsWithCoordsForEachFile.append(helpParse.getWordsWithCoords(splitedText, i))
+    coordIndex = helpParse.mergeDicts(wordsWithCoordsForEachFile, uniqueWords)
+    print("b")
+    return coordIndex
+def getCoordIndexTitles(FILEPATH, DICTIONARYPATH, name,  files):
+    jsonFile = codecs.open(DICTIONARYPATH + name, 'r', 'utf-8')
+    jsonStr = jsonFile.read()
+    uniqueWords = json.loads(jsonStr)
+    #uniqueWords = dictionary.decode(DICTIONARYPATH + name)
+    wordsWithCoordsForEachFile = []
+    print("a")
+    for i in range(len(files)):
+        allText = helpParse.getBookTitle(FILEPATH + files[i])
+        splitedText = helpParse.splitByTags(allText)
+        wordsWithCoordsForEachFile.append(helpParse.getWordsWithCoords(splitedText, i))
+    coordIndex = helpParse.mergeDicts(wordsWithCoordsForEachFile, uniqueWords)
+    print("b")
+    return coordIndex
+def getCoordIndexAnnotation(FILEPATH, DICTIONARYPATH, name,  files):
+    jsonFile = codecs.open(DICTIONARYPATH + name, 'r', 'utf-8')
+    jsonStr = jsonFile.read()
+    uniqueWords = json.loads(jsonStr)
+    #uniqueWords = dictionary.decode(DICTIONARYPATH + name)
+    wordsWithCoordsForEachFile = []
+    print("a")
+    for i in range(len(files)):
+        allText = helpParse.getBookAnnotation(FILEPATH + files[i])
+        splitedText = helpParse.splitByTags(allText)
+        wordsWithCoordsForEachFile.append(helpParse.getWordsWithCoords(splitedText, i))
+    coordIndex = helpParse.mergeDicts(wordsWithCoordsForEachFile, uniqueWords)
+    print("b")
+    return coordIndex

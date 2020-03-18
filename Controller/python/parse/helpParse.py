@@ -23,6 +23,22 @@ def getAllTextFromFb2(path):
   node = etree.parse(path)
   return str(etree.tostring(node.getroot().getchildren()[1], encoding='utf8', method='xml'),'utf-8')
 
+def getAuthor(path):
+  node = etree.parse(path)
+  res =  str(etree.tostring(node.getroot().getchildren()[0].getchildren()[0].getchildren()[1].getchildren()[0], encoding='utf8', method='xml'),'utf-8')
+  res+=" " + str(etree.tostring(node.getroot().getchildren()[0].getchildren()[0].getchildren()[1].getchildren()[1], encoding='utf8', method='xml'),'utf-8')
+  res+=" " + str(etree.tostring(node.getroot().getchildren()[0].getchildren()[0].getchildren()[1].getchildren()[2], encoding='utf8', method='xml'),'utf-8')
+  return res
+
+def getBookTitle(path):
+    node = etree.parse(path)
+    return str(etree.tostring(node.getroot().getchildren()[0].getchildren()[0].getchildren()[2], encoding='utf8', method='xml'),'utf-8')
+def getBookAnnotation(path):
+    node = etree.parse(path)
+    return str(etree.tostring(node.getroot().getchildren()[0].getchildren()[0].getchildren()[3], encoding='utf8', method='xml'),'utf-8')
+
+
+
 def splitByTags(string):
   pattern = re.compile(r'<[^>]+>')
   return re.split(pattern, string)
